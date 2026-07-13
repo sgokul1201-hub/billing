@@ -8,7 +8,6 @@ export default function RegisterForm({ onSuccess }) {
   const [shopName, setShopName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [age, setAge] = useState('');
-  const [dob, setDob] = useState('');
   const [sex, setSex] = useState('Male');
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
@@ -28,7 +27,6 @@ export default function RegisterForm({ onSuccess }) {
       setShopName(existing.shopName);
       setOwnerName(existing.ownerName);
       setAge(existing.age);
-      setDob(existing.dob);
       setSex(existing.sex);
       setPhone(existing.phone);
       setPin(existing.pin);
@@ -65,7 +63,6 @@ export default function RegisterForm({ onSuccess }) {
       shopName,
       ownerName,
       age: parseInt(age) || 0,
-      dob,
       sex,
       phone,
       pin,
@@ -187,26 +184,15 @@ export default function RegisterForm({ onSuccess }) {
         />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label">DOB</label>
-          <input 
-            type="date" 
-            className="form-input" 
-            value={dob} 
-            onChange={(e) => setDob(e.target.value)} 
-          />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Age</label>
-          <input 
-            type="number" 
-            className="form-input" 
-            value={age} 
-            onChange={(e) => setAge(e.target.value)} 
-            placeholder="Age"
-          />
-        </div>
+      <div className="form-group">
+        <label className="form-label">Age</label>
+        <input 
+          type="number" 
+          className="form-input" 
+          value={age} 
+          onChange={(e) => setAge(e.target.value)} 
+          placeholder="Age"
+        />
       </div>
 
       <div className="form-row">
