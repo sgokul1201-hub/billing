@@ -48,6 +48,15 @@ export default function BillingPage() {
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
 
+  // Built-in Toast notification states
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+  const showToast = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: 'success' });
+    }, 3000);
+  };
+
   // Total summary states
   const [totals, setTotals] = useState({
     subtotal: 0,
@@ -110,7 +119,7 @@ export default function BillingPage() {
   const addCustomItem = (e) => {
     e.preventDefault();
     if (!customItemName || !customItemPrice) {
-      alert("Please provide item name and price.");
+      showToast("Please provide item name and price.", "error");
       return;
     }
 
@@ -192,12 +201,12 @@ export default function BillingPage() {
     await db.items.add(catalogItem);
     const updatedCatalog = await db.items.toArray();
     setCatalogItems(updatedCatalog);
-    alert("Item added to catalog library!");
+    showToast("Item added to catalog library!", "success");
   };
 
   const handleSaveInvoice = async () => {
     if (billItems.length === 0) {
-      alert("Please add at least one item to generate a bill.");
+      showToast("Please add at least one item to generate a bill.", "error");
       return;
     }
 
@@ -222,7 +231,7 @@ export default function BillingPage() {
       // 2. Generate PDF and Download
       generateInvoicePDF(saleRecord, shop);
 
-      alert("Invoice saved and PDF generated successfully!");
+      showToast("Invoice saved and PDF generated successfully!", "success");
       
       // 3. Reset form
       setCustomerName('');
@@ -236,7 +245,7 @@ export default function BillingPage() {
       router.push('/');
     } catch (err) {
       console.error("Failed to save sale:", err);
-      alert("Error saving invoice. Please try again.");
+      showToast("Error saving invoice. Please try again.", "error");
     }
   };
 
@@ -607,6 +616,29 @@ export default function BillingPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {notification.show && (
+        <div style={{
+          position: 'fixed',
+          top: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: notification.type === 'error' ? 'var(--danger)' : 'var(--success)',
+          color: '#fff',
+          padding: '12px 24px',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+          fontWeight: '600',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          animation: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {notification.message}
         </div>
       )}
 
