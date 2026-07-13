@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export function generateInvoicePDF(sale, shop) {
   if (!sale || !shop) return;
@@ -113,7 +113,7 @@ export function generateInvoicePDF(sale, shop) {
     tableRows.push(rowData);
   });
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 82,
     head: [tableColumn],
     body: tableRows,
