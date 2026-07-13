@@ -50,6 +50,7 @@ export default function BillingPage() {
 
   // Built-in Toast notification states
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+  const [formError, setFormError] = useState('');
   const showToast = (message, type = 'success') => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
@@ -119,9 +120,10 @@ export default function BillingPage() {
   const addCustomItem = (e) => {
     e.preventDefault();
     if (!customItemName || !customItemPrice) {
-      showToast("Please provide item name and price.", "error");
+      setFormError("Please provide item name and price.");
       return;
     }
+    setFormError('');
 
     const newItem = {
       id: Date.now() + Math.random(),
@@ -190,7 +192,11 @@ export default function BillingPage() {
 
   const saveCatalogItem = async (e) => {
     e.preventDefault();
-    if (!customItemName || !customItemPrice) return;
+    if (!customItemName || !customItemPrice) {
+      setFormError("Please provide item name and price.");
+      return;
+    }
+    setFormError('');
     
     const catalogItem = {
       name: customItemName,
@@ -351,7 +357,10 @@ export default function BillingPage() {
               className="form-input" 
               placeholder="e.g. Wireless Mouse" 
               value={customItemName}
-              onChange={(e) => setCustomItemName(e.target.value)}
+              onChange={(e) => {
+                setCustomItemName(e.target.value);
+                if (formError) setFormError('');
+              }}
             />
           </div>
 
@@ -364,7 +373,10 @@ export default function BillingPage() {
                 className="form-input" 
                 placeholder="₹0.00" 
                 value={customItemPrice}
-                onChange={(e) => setCustomItemPrice(e.target.value)}
+                onChange={(e) => {
+                  setCustomItemPrice(e.target.value);
+                  if (formError) setFormError('');
+                }}
               />
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -400,6 +412,22 @@ export default function BillingPage() {
               />
             </div>
           </div>
+
+          {formError && (
+            <div style={{ 
+              color: 'var(--danger)', 
+              fontSize: '0.75rem', 
+              fontWeight: '600', 
+              marginTop: '10px',
+              padding: '8px 12px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              borderRadius: '8px',
+              border: '1px solid rgba(239, 68, 68, 0.15)',
+              textAlign: 'center'
+            }}>
+              {formError}
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '10px', marginTop: '10px' }}>
             <button type="submit" className="btn btn-primary" style={{ padding: '10px' }}>
