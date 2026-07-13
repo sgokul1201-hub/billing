@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { db } from '@/lib/db';
 import { generateInvoicePDF } from '@/lib/pdfHelper';
 import BottomNav from '@/components/BottomNav';
+import ThemeToggle from '@/components/ThemeToggle';
 import { 
   ArrowLeft, 
   Plus, 
@@ -252,14 +253,17 @@ export default function BillingPage() {
           </Link>
           <h1 className="app-title">Billing Desk</h1>
         </div>
-        <button 
-          type="button" 
-          onClick={() => setShowCatalogModal(true)} 
-          className="btn btn-secondary" 
-          style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', gap: '6px' }}
-        >
-          <BookOpen size={14} /> Catalog
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            type="button" 
+            onClick={() => setShowCatalogModal(true)} 
+            className="btn btn-secondary" 
+            style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem', borderRadius: '10px', display: 'flex', gap: '6px' }}
+          >
+            <BookOpen size={14} /> Catalog
+          </button>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -422,7 +426,7 @@ export default function BillingPage() {
                       gap: '8px',
                       padding: '12px',
                       borderRadius: '10px',
-                      background: 'rgba(255,255,255,0.01)',
+                      background: 'var(--bg-card-subtle)',
                       border: '1px solid var(--border-color)'
                     }}
                   >
@@ -581,7 +585,7 @@ export default function BillingPage() {
                       alignItems: 'center',
                       padding: '12px 16px',
                       borderRadius: '10px',
-                      background: 'rgba(255, 255, 255, 0.02)',
+                      background: 'var(--bg-card-subtle)',
                       border: '1px solid var(--border-color)',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'

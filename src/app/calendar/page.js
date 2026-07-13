@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { generateInvoicePDF } from '@/lib/pdfHelper';
 import BottomNav from '@/components/BottomNav';
+import ThemeToggle from '@/components/ThemeToggle';
 import { 
   ArrowLeft, 
   ChevronLeft, 
@@ -129,10 +130,10 @@ export default function CalendarPage() {
             borderRadius: '12px',
             border: isSelected ? '2.5px solid var(--primary)' : '1px solid var(--border-color)',
             background: isSelected 
-              ? 'rgba(99, 102, 241, 0.12)' 
+              ? 'var(--primary-glow)' 
               : isToday 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(255, 255, 255, 0.01)',
+                ? 'var(--bg-btn-secondary)' 
+                : 'var(--bg-card-subtle)',
             cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
@@ -200,6 +201,7 @@ export default function CalendarPage() {
           </Link>
           <h1 className="app-title">Sales Calendar</h1>
         </div>
+        <ThemeToggle />
       </header>
 
       <main style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -285,7 +287,7 @@ export default function CalendarPage() {
                       justifyContent: 'space-between',
                       padding: '12px',
                       borderRadius: '10px',
-                      background: 'rgba(255, 255, 255, 0.02)',
+                      background: 'var(--bg-card-subtle)',
                       border: '1px solid var(--border-color)'
                     }}
                   >
@@ -305,7 +307,7 @@ export default function CalendarPage() {
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: '700', fontSize: '0.85rem' }}>{sale.customerName || 'Walk-in'}</span>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 4px', borderRadius: '4px' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'var(--bg-btn-secondary)', padding: '2px 4px', borderRadius: '4px' }}>
                             {sale.invoiceNumber}
                           </span>
                         </div>

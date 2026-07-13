@@ -2,6 +2,7 @@
 
 import RegisterForm from '@/components/RegisterForm';
 import BottomNav from '@/components/BottomNav';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Store } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -12,6 +13,7 @@ export default function RegisterPage() {
           <Store size={22} style={{ color: 'var(--primary)' }} />
           <h1 className="app-title">Shop Profile</h1>
         </div>
+        <ThemeToggle />
       </header>
 
       <main style={{ padding: '20px' }}>

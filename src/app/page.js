@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { generateInvoicePDF } from '@/lib/pdfHelper';
 import BottomNav from '@/components/BottomNav';
+import ThemeToggle from '@/components/ThemeToggle';
 import { 
   TrendingUp, 
   FileText, 
@@ -166,7 +167,7 @@ export default function Dashboard() {
               y1={y} 
               x2={width - padding.right} 
               y2={y} 
-              stroke="rgba(255, 255, 255, 0.04)" 
+              stroke="var(--border-color)" 
               strokeDasharray="4 4" 
             />
           );
@@ -228,9 +229,12 @@ export default function Dashboard() {
             <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Welcome, {shop?.ownerName}</p>
           </div>
         </div>
-        <Link href="/billing" className="btn btn-primary" style={{ padding: '8px 12px', fontSize: '0.85rem', width: 'auto', borderRadius: '12px' }}>
-          <Plus size={16} /> New Bill
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Link href="/billing" className="btn btn-primary" style={{ padding: '8px 12px', fontSize: '0.85rem', width: 'auto', borderRadius: '12px' }}>
+            <Plus size={16} /> New Bill
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* Main Content */}
@@ -240,7 +244,7 @@ export default function Dashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           
           <div className="glass-card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '10px', color: 'var(--primary)' }}>
+            <div style={{ background: 'var(--primary-glow)', padding: '10px', borderRadius: '10px', color: 'var(--primary)' }}>
               <DollarSign size={20} />
             </div>
             <div>
@@ -332,7 +336,7 @@ export default function Dashboard() {
                     justifyContent: 'space-between',
                     padding: '12px',
                     borderRadius: '10px',
-                    background: 'rgba(255, 255, 255, 0.02)',
+                    background: 'var(--bg-card-subtle)',
                     border: '1px solid var(--border-color)',
                   }}
                 >
@@ -341,7 +345,7 @@ export default function Dashboard() {
                       width: '36px',
                       height: '36px',
                       borderRadius: '8px',
-                      background: 'rgba(99, 102, 241, 0.08)',
+                      background: 'var(--primary-glow)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -352,7 +356,7 @@ export default function Dashboard() {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>{inv.customerName || 'Walk-in'}</span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 5px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'var(--bg-btn-secondary)', padding: '2px 5px', borderRadius: '4px' }}>
                           {inv.invoiceNumber}
                         </span>
                       </div>
