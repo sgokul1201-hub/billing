@@ -153,7 +153,7 @@ export default function RegisterForm({ onSuccess }) {
           value={shopName} 
           onChange={(e) => setShopName(e.target.value)} 
           required 
-          placeholder="e.g. Sabari Supermarket"
+          placeholder="e.g. Invoxa Mart"
         />
       </div>
 
@@ -180,7 +180,7 @@ export default function RegisterForm({ onSuccess }) {
           value={ownerName} 
           onChange={(e) => setOwnerName(e.target.value)} 
           required 
-          placeholder="e.g. Sabari Nathan"
+          placeholder="e.g. John Doe"
         />
       </div>
 

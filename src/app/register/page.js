@@ -171,7 +171,7 @@ export default function RegisterPage() {
       const expenses = await db.expenses.toArray();
 
       const backupData = {
-        app: 'Sabari Billing',
+        app: 'Invoxa',
         version: '1.0.0',
         exportedAt: new Date().toISOString(),
         data: { shop, sales, items, expenses }
@@ -183,7 +183,7 @@ export default function RegisterPage() {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `sabari_billing_backup_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `invoxa_backup_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -203,8 +203,8 @@ export default function RegisterPage() {
     reader.onload = async (event) => {
       try {
         const backupData = JSON.parse(event.target.result);
-        if (backupData.app !== 'Sabari Billing' || !backupData.data) {
-          alert("Invalid backup file format. Please upload a valid Sabari Billing JSON backup.");
+        if (backupData.app !== 'Invoxa' && backupData.app !== 'Sabari Billing') {
+          alert("Invalid backup file format. Please upload a valid Invoxa JSON backup.");
           return;
         }
 
@@ -676,7 +676,7 @@ export default function RegisterPage() {
                 <Upload size={18} /> Restore Database Backup
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                Choose a previously exported Sabari Billing JSON file to restore your entire database. 
+                Choose a previously exported Invoxa JSON file to restore your entire database. 
                 <span style={{ color: 'var(--danger)', fontWeight: 'bold' }}> Warning: This will overwrite all current settings, catalog, expenses, and invoices on this device.</span>
               </p>
               

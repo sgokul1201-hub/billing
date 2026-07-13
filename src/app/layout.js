@@ -2,7 +2,7 @@ import "./globals.css";
 import AuthWrapper from "@/components/AuthWrapper";
 
 export const metadata = {
-  title: "Sabari Billing - Smart Invoice & Sales Tracker",
+  title: "Invoxa - Smart Invoice & Sales Tracker",
   description: "Offline-first intelligent billing and sales analysis application for small shops.",
 };
 

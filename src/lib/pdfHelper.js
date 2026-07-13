@@ -385,7 +385,7 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
     doc.setFontSize(6.5);
     doc.setTextColor(156, 163, 175); // gray 400
     doc.text(
-      `Page ${i} of ${totalPages}  |  Powered by Sabari Retail Cloud Suite Engine (Offline)`,
+      `Page ${i} of ${totalPages}  |  Powered by Invoxa Retail Suite Engine (Offline)`,
       pageWidth / 2,
       pageHeight - 6,
       { align: 'center' }
