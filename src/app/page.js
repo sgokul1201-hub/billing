@@ -18,6 +18,7 @@ import {
   Search, 
   TrendingDown,
   CreditCard,
+  User,
   Share2
 } from 'lucide-react';
 
