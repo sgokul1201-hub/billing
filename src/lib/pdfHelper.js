@@ -17,48 +17,48 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
   const primaryColor = [28, 56, 121]; // #1c3879 - Dark Indigo/Blue
   const secondaryColor = [31, 41, 55]; // #1f2937 - Slate 800
   const textColor = [55, 65, 81]; // #374151 - Slate 700
-  const borderLight = [209, 213, 219]; // slate 300
+  const borderLight = [226, 232, 240]; // slate 200
   const lightBg = [243, 244, 246]; // gray 100
 
-  // Margins
-  const m = 15;
-  const contentWidth = pageWidth - (m * 2); // 180mm
+  // Narrower margin for high density single-page layout
+  const m = 12;
+  const contentWidth = pageWidth - (m * 2); // 186mm
 
   // --- 1. SUPERMARKET BILL HEADER ---
-  let y = 14;
+  let y = 12;
 
-  // Shop Name (Large bold retail style)
+  // Shop Name
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text(shop.shopName.toUpperCase(), pageWidth / 2, y, { align: 'center' });
   y += 5;
 
   // Address & Tel (Centered)
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(textColor[0], textColor[1], textColor[2]);
   
   if (shop.address) {
     const splitAddress = doc.splitTextToSize(shop.address, contentWidth - 40);
     splitAddress.forEach(line => {
       doc.text(line, pageWidth / 2, y, { align: 'center' });
-      y += 4;
+      y += 3.5;
     });
   }
   doc.text(`Phone: ${shop.phone}  |  GSTIN: 33AAAAA1234A1Z1  |  Store Code: MS-8910`, pageWidth / 2, y, { align: 'center' });
-  y += 6;
+  y += 5;
 
   // Invoice Heading (Large Block Bar)
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(m, y, contentWidth, 7, 'F');
+  doc.rect(m, y, contentWidth, 6.5, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9.5);
   doc.setTextColor(255, 255, 255);
-  doc.text('TAX INVOICE / CASH BILL', pageWidth / 2, y + 5, { align: 'center' });
-  y += 10;
+  doc.text('TAX INVOICE / CASH BILL', pageWidth / 2, y + 4.5, { align: 'center' });
+  y += 9;
 
-  // --- 2. MULTI-COLUMN META PANEL (USING BORDERLESS AUTOTABLE TO PREVENT OVERLAPS) ---
+  // --- 2. MULTI-COLUMN META PANEL (USING AUTOTABLE FOR PERFECT AUTO-ALIGNMENT) ---
   const dateObj = new Date(sale.timestamp);
   
   autoTable(doc, {
@@ -77,29 +77,29 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
     ],
     theme: 'plain',
     styles: {
-      fontSize: 8,
-      cellPadding: 1,
+      fontSize: 7.5,
+      cellPadding: 0.8,
       textColor: secondaryColor,
       font: 'helvetica'
     },
     columnStyles: {
-      0: { cellWidth: 24 },
+      0: { cellWidth: 22 },
       1: { cellWidth: 35 },
-      2: { cellWidth: 24 },
+      2: { cellWidth: 22 },
       3: { cellWidth: 38 },
       4: { cellWidth: 20 },
-      5: { cellWidth: 39 }
+      5: { cellWidth: 49 }
     },
     margin: { left: m, right: m }
   });
 
-  y = doc.lastAutoTable.finalY + 4;
+  y = doc.lastAutoTable.finalY + 3;
 
-  // Thin grid dividers
+  // Thin grid divider line
   doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
   doc.setLineWidth(0.3);
   doc.line(m, y, pageWidth - m, y);
-  y += 6;
+  y += 4;
 
   // --- 3. PRODUCTS TABLE WITH EXACT SPECIFIED COLUMNS & ALIGNMENTS ---
   const tableColumn = ['S.No', 'Product Description', 'HSN', 'Price (Rs.)', 'Qty', 'Disc %', 'Taxable Val', 'GST %', 'Net Amount'];
@@ -142,14 +142,14 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
       fillColor: primaryColor,
       textColor: [255, 255, 255],
       fontStyle: 'bold',
-      fontSize: 8,
+      fontSize: 7.5,
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
       lineColor: borderLight
     },
     bodyStyles: {
-      fontSize: 8,
+      fontSize: 7.5,
       textColor: textColor,
       valign: 'middle',
       lineWidth: 0.1,
@@ -157,47 +157,40 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
     },
     columnStyles: {
       0: { cellWidth: 10, halign: 'center' }, // S.No
-      1: { cellWidth: 50, halign: 'left' },   // Product Description
+      1: { cellWidth: 52, halign: 'left' },   // Product Description
       2: { cellWidth: 15, halign: 'center' }, // HSN
       3: { cellWidth: 18, halign: 'right' },  // Price (Rs.)
       4: { cellWidth: 12, halign: 'center' }, // Qty
       5: { cellWidth: 15, halign: 'center' }, // Disc %
       6: { cellWidth: 20, halign: 'right' },  // Taxable Val
       7: { cellWidth: 15, halign: 'center' }, // GST %
-      8: { cellWidth: 25, halign: 'right' }   // Net Amount
+      8: { cellWidth: 29, halign: 'right' }   // Net Amount
     },
     margin: { left: m, right: m }
   });
 
-  y = doc.lastAutoTable.finalY + 6;
+  y = doc.lastAutoTable.finalY + 4;
 
-  // Basket summary row on Page 1
+  // Check overflow before rendering summary sections to guarantee Single Page fit if possible
+  if (y > pageHeight - 78) {
+    doc.addPage();
+    y = 12;
+  }
+
+  // Basket summary row
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.text(`TOTAL ITEMS IN BASKET: ${totalItemsCount}  |  TOTAL PIECES: ${totalQtyCount}`, m, y);
-  y += 4;
+  y += 3;
   doc.line(m, y, pageWidth - m, y);
-
-  // --- 4. EXPLICIT PAGE BREAK TO PAGE 2 (GUARANTEES 2-PAGE INVOICE WITHOUT COLLISION) ---
-  doc.addPage();
-  y = 15;
-
-  // Page 2 header title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text('INVOICE SUMMARY & SETTLEMENT', m, y);
   y += 4;
-  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(0.4);
-  doc.line(m, y, pageWidth - m, y);
-  y += 6;
 
-  // --- 5. STACKED SUMMARY & GST BREAKDOWN TABLES ---
-  const leftColW = 100;
-  const rightColStart = m + leftColW + 8;
-  const rightColW = contentWidth - leftColW - 8;
+  // --- 4. SIDE-BY-SIDE SUMMARY & GST BREAKDOWN TABLES ---
+  // Place GST Table on the left (width 98mm) and Totals on the right (width 80mm)
+  const leftColW = 98;
+  const rightColStart = m + leftColW + 8; // 12 + 98 + 8 = 118mm
+  const rightColW = contentWidth - leftColW - 8; // 186 - 98 - 8 = 80mm
 
   // Compile GST slabs
   const taxSlabs = {};
@@ -231,174 +224,175 @@ export async function generateInvoicePDF(sale, shop, action = 'download') {
     ];
   });
 
-  // Render GST Table (Left Aligned on Page 2)
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  // Render GST Table (Left Aligned)
   doc.text('GST SUMMARY BREAKDOWN', m, y);
-  
   autoTable(doc, {
-    startY: y + 2,
-    head: [['GST %', 'Taxable Val', 'CGST %', 'CGST Amt', 'SGST %', 'SGST Amt', 'Total GST']],
+    startY: y + 1.5,
+    head: [['GST %', 'Taxable Val', 'CGST %', 'CGST', 'SGST %', 'SGST', 'Total GST']],
     body: gstBreakdownRows,
     theme: 'grid',
     headStyles: {
       fillColor: [75, 85, 99], // gray 600
       textColor: [255, 255, 255],
-      fontSize: 7.5,
+      fontSize: 7,
       halign: 'center'
     },
     bodyStyles: {
-      fontSize: 7.5,
+      fontSize: 7,
       textColor: textColor,
       halign: 'right'
     },
     columnStyles: {
       0: { cellWidth: 12, halign: 'center' },
-      1: { cellWidth: 16 },
+      1: { cellWidth: 15 },
       2: { cellWidth: 12, halign: 'center' },
-      3: { cellWidth: 15 },
+      3: { cellWidth: 14 },
       4: { cellWidth: 12, halign: 'center' },
-      5: { cellWidth: 15 },
-      6: { cellWidth: 18 }
+      5: { cellWidth: 14 },
+      6: { cellWidth: 19 }
     },
     margin: { left: m }
   });
 
   const gstTableEndY = doc.lastAutoTable.finalY;
 
-  // Render Right Column Grand Totals Block
-  let calcY = y + 2;
+  // Render Right Column Grand Totals Block (Vertically aligned with GST table)
+  let calcY = y + 1.5;
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
-  doc.text('Gross Amount:', rightColStart, calcY);
-  doc.text(`${sale.subtotal.toFixed(2)}`, pageWidth - m - 2, calcY, { align: 'right' });
-  calcY += 5;
+  doc.text('Gross Amount:', rightColStart, calcY + 2);
+  doc.text(`${sale.subtotal.toFixed(2)}`, pageWidth - m - 1, calcY + 2, { align: 'right' });
+  calcY += 4.2;
 
-  doc.text('Less Scheme Disc:', rightColStart, calcY);
-  doc.text(`-${sale.discountTotal.toFixed(2)}`, pageWidth - m - 2, calcY, { align: 'right' });
-  calcY += 5;
+  doc.text('Less Scheme Disc:', rightColStart, calcY + 2);
+  doc.text(`-${sale.discountTotal.toFixed(2)}`, pageWidth - m - 1, calcY + 2, { align: 'right' });
+  calcY += 4.2;
 
-  doc.text('Total CGST:', rightColStart, calcY);
-  doc.text(`${(sale.taxTotal / 2).toFixed(2)}`, pageWidth - m - 2, calcY, { align: 'right' });
-  calcY += 5;
+  doc.text('Total CGST:', rightColStart, calcY + 2);
+  doc.text(`${(sale.taxTotal / 2).toFixed(2)}`, pageWidth - m - 1, calcY + 2, { align: 'right' });
+  calcY += 4.2;
 
-  doc.text('Total SGST:', rightColStart, calcY);
-  doc.text(`${(sale.taxTotal / 2).toFixed(2)}`, pageWidth - m - 2, calcY, { align: 'right' });
-  calcY += 5.5;
+  doc.text('Total SGST:', rightColStart, calcY + 2);
+  doc.text(`${(sale.taxTotal / 2).toFixed(2)}`, pageWidth - m - 1, calcY + 2, { align: 'right' });
+  calcY += 4.5;
 
   // Total Separator Lines
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(0.4);
-  doc.line(rightColStart, calcY - 2.5, pageWidth - m, calcY - 2.5);
-  doc.line(rightColStart, calcY - 1.8, pageWidth - m, calcY - 1.8);
+  doc.setLineWidth(0.35);
+  doc.line(rightColStart, calcY + 1, pageWidth - m, calcY + 1);
+  doc.line(rightColStart, calcY + 1.5, pageWidth - m, calcY + 1.5);
+  calcY += 2;
 
-  // NET AMOUNT DUE Box (Uses Rs. string instead of Rupee symbol to prevent encoding corruption)
+  // NET AMOUNT DUE Highlight block
   doc.setFillColor(lightBg[0], lightBg[1], lightBg[2]);
-  doc.rect(rightColStart, calcY - 0.5, rightColW, 8, 'F');
+  doc.rect(rightColStart, calcY, rightColW, 7, 'F');
   
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text('NET PAYABLE:', rightColStart + 2, calcY + 5);
-  doc.text(`Rs. ${sale.grandTotal.toFixed(2)}`, pageWidth - m - 2, calcY + 5, { align: 'right' });
+  doc.text('NET PAYABLE:', rightColStart + 2, calcY + 4.8);
+  doc.text(`Rs. ${sale.grandTotal.toFixed(2)}`, pageWidth - m - 2, calcY + 4.8, { align: 'right' });
 
   // SAVINGS BANNER (No special character encoding)
   if (sale.discountTotal > 0) {
-    calcY += 12;
+    calcY += 9;
     doc.setFillColor(236, 253, 245); // light green bg
-    doc.rect(rightColStart, calcY - 4, rightColW, 7, 'F');
+    doc.rect(rightColStart, calcY - 1, rightColW, 6, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(16, 185, 129); // success green text
-    doc.text(`TOTAL SAVINGS: Rs. ${sale.discountTotal.toFixed(2)}`, rightColStart + 3, calcY + 1);
+    doc.text(`TOTAL SAVINGS: Rs. ${sale.discountTotal.toFixed(2)}`, rightColStart + 3.5, calcY + 3.2);
   }
 
-  // Get current Y positioning
   const totalsEndY = calcY + 8;
-  y = Math.max(gstTableEndY, totalsEndY) + 8;
+  y = Math.max(gstTableEndY, totalsEndY) + 6;
 
-  // --- 6. UPI PAYMENT SCANNER & CASHIER SIGNATURE BAR ---
+  if (y > pageHeight - 45) {
+    doc.addPage();
+    y = 12;
+  }
+
+  // --- 5. UPI PAYMENT SCANNER & CASHIER SIGNATURE BAR ---
   doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
   doc.setLineWidth(0.3);
   doc.line(m, y, pageWidth - m, y); // divider
-  y += 5;
+  y += 4;
 
   // Mock QR payment box
-  const qrSize = 18;
+  const qrSize = 16;
   doc.setDrawColor(15, 23, 42);
-  doc.setLineWidth(0.5);
+  doc.setLineWidth(0.4);
   doc.rect(m, y, qrSize, qrSize);
   
   // Design mock internal QR details
   doc.setFillColor(15, 23, 42);
-  doc.rect(m + 1, y + 1, 4, 4, 'F');
-  doc.rect(m + qrSize - 5, y + 1, 4, 4, 'F');
-  doc.rect(m + 1, y + qrSize - 5, 4, 4, 'F');
-  doc.rect(m + 6, y + 6, 2, 2, 'F');
-  doc.rect(m + 10, y + 4, 3, 2, 'F');
-  doc.rect(m + 4, y + 9, 3, 3, 'F');
-  doc.rect(m + 9, y + 11, 4, 2, 'F');
-  doc.rect(m + 12, y + 12, 3, 3, 'F');
+  doc.rect(m + 1, y + 1, 3.5, 3.5, 'F');
+  doc.rect(m + qrSize - 4.5, y + 1, 3.5, 3.5, 'F');
+  doc.rect(m + 1, y + qrSize - 4.5, 3.5, 3.5, 'F');
+  doc.rect(m + 5.5, y + 5.5, 2, 2, 'F');
+  doc.rect(m + 9, y + 3.5, 3, 1.8, 'F');
+  doc.rect(m + 3.5, y + 8, 2.5, 2.5, 'F');
+  doc.rect(m + 8, y + 10, 3.5, 1.8, 'F');
+  doc.rect(m + 11, y + 11, 2.5, 2.5, 'F');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-  doc.text('PAYMENT DETAILS:', m + qrSize + 4, y + 3);
+  doc.text('PAYMENT DETAILS:', m + qrSize + 3, y + 3);
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.text('Mode of Payment: UPI / CARD / CASH', m + qrSize + 4, y + 7);
-  doc.text('Transaction ID: TXN998877665544', m + qrSize + 4, y + 11);
-  doc.text('Scan QR code using BHIM UPI apps to settle.', m + qrSize + 4, y + 15);
+  doc.setFontSize(6.5);
+  doc.text('Mode of Payment: UPI / CARD / CASH', m + qrSize + 3, y + 6.5);
+  doc.text('Transaction ID: TXN998877665544', m + qrSize + 3, y + 10);
+  doc.text('Scan QR code using UPI apps to pay instantly.', m + qrSize + 3, y + 13.5);
 
   // Cashier signatory box (Right aligned)
   const sigX = pageWidth - m - 45;
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
+  doc.setFontSize(6.5);
   doc.text('E.&O.E.', sigX, y + 3);
   doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);
-  doc.line(sigX, y + 12, sigX + 45, y + 12);
+  doc.line(sigX, y + 10, sigX + 45, y + 10);
   doc.setFont('helvetica', 'bold');
-  doc.text('AUTHORIZED SIGNATURE', sigX + 5, y + 16);
+  doc.text('AUTHORIZED SIGNATURE', sigX + 4, y + 13.5);
 
-  y += qrSize + 8;
+  y += qrSize + 6;
 
-  // --- 7. CORPORATE RETAIL TERMS & CONDITIONS ---
+  // --- 6. CORPORATE RETAIL TERMS & CONDITIONS ---
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
   doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.text('TERMS OF SALE & DISCLOSURES:', m, y);
 
   const mncTerms = 
     `1. Exchange policies: Items in clean sellable package will be exchanged within 7 days of purchase. No cash refunds.\n` +
-    `2. Strict non-returnable items: Fresh dairy, fruits, vegetables, baby care products, undergarments, and promotional items.\n` +
+    `2. Fresh dairy, fruits, vegetables, baby care products, undergarments, and promotional items are non-returnable.\n` +
     `3. GST tax rates are declared in accordance with HSN code lists. Please check all calculations before exiting counter.\n` +
-    `4. All legal matters and transactions are strictly subject to local municipal jurisdiction. Thank you for visiting us!`;
+    `4. All legal matters and transactions are subject to local municipal jurisdiction. Thank you for shopping with us!`;
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
+  doc.setFontSize(6);
   doc.setTextColor(textColor[0], textColor[1], textColor[2]);
   const splitMncTerms = doc.splitTextToSize(mncTerms, contentWidth);
-  doc.text(splitMncTerms, m, y + 3);
+  doc.text(splitMncTerms, m, y + 2.5);
 
   // Footer Pagination Info
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
+    doc.setFontSize(6.5);
     doc.setTextColor(156, 163, 175); // gray 400
     doc.text(
       `Page ${i} of ${totalPages}  |  Powered by Sabari Retail Cloud Suite Engine (Offline)`,
       pageWidth / 2,
-      pageHeight - 8,
+      pageHeight - 6,
       { align: 'center' }
     );
   }
 
-  // --- 8. Execute PDF Output Action ---
+  // --- 7. Execute PDF Output Action ---
   const fileName = `Invoice_${sale.invoiceNumber || sale.id}.pdf`;
 
   if (action === 'share') {
