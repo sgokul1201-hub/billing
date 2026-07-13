@@ -2,11 +2,12 @@ import Dexie from 'dexie';
 
 export const db = new Dexie('InvoiceTrackerDB');
 
-// Define database schema
-db.version(1).stores({
+// Define database schema with migrations
+db.version(2).stores({
   shop: 'id', // Shop details & configuration (id: 1)
   sales: '++id, invoiceNumber, date, timestamp, customerName, customerPhone, grandTotal', // Billing history
-  items: '++id, name, price, taxPercent' // Inventory list
+  items: '++id, name, price, taxPercent', // Inventory list
+  expenses: '++id, category, amount, date, timestamp' // Operational expenses ledger
 });
 
 // Helper functions for seeding/defaults

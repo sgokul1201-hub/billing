@@ -16,7 +16,8 @@ import {
   Download, 
   Trash2, 
   Search, 
-  User,
+  TrendingDown,
+  CreditCard,
   Share2
 } from 'lucide-react';
 
@@ -28,7 +29,9 @@ export default function Dashboard() {
     totalCount: 0,
     averageValue: 0,
     peakDate: 'N/A',
-    peakDateAmount: 0
+    peakDateAmount: 0,
+    totalExpenses: 0,
+    netProfit: 0
   });
   const [chartData, setChartData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,11 +49,20 @@ export default function Dashboard() {
     const allSales = await db.sales.orderBy('timestamp').reverse().toArray();
     setInvoices(allSales);
 
-    // 3. Calculate Stats
+    // 3. Calculate Stats & Expenses
+    let totalRev = 0;
+    let totalCount = 0;
+    let averageValue = 0;
+    let formattedPeakDate = 'N/A';
+    let peakDateAmount = 0;
+
+    const allExpenses = await db.expenses.toArray();
+    const totalExp = allExpenses.reduce((sum, item) => sum + item.amount, 0);
+
     if (allSales.length > 0) {
-      const totalRev = allSales.reduce((sum, item) => sum + item.grandTotal, 0);
-      const totalCount = allSales.length;
-      const averageValue = totalRev / totalCount;
+      totalRev = allSales.reduce((sum, item) => sum + item.grandTotal, 0);
+      totalCount = allSales.length;
+      averageValue = totalRev / totalCount;
 
       // Calculate Peak Sale Date
       const dateMap = {};
@@ -60,7 +72,6 @@ export default function Dashboard() {
       });
 
       let peakDate = 'N/A';
-      let peakDateAmount = 0;
       Object.keys(dateMap).forEach(date => {
         if (dateMap[date] > peakDateAmount) {
           peakDateAmount = dateMap[date];
@@ -68,21 +79,21 @@ export default function Dashboard() {
         }
       });
 
-      // Format peak date
-      let formattedPeakDate = 'N/A';
       if (peakDate !== 'N/A') {
         const dateObj = new Date(peakDate);
         formattedPeakDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       }
-
-      setStats({
-        totalRevenue: totalRev,
-        totalCount,
-        averageValue,
-        peakDate: formattedPeakDate,
-        peakDateAmount
-      });
     }
+
+    setStats({
+      totalRevenue: totalRev,
+      totalCount,
+      averageValue,
+      peakDate: formattedPeakDate,
+      peakDateAmount,
+      totalExpenses: totalExp,
+      netProfit: totalRev - totalExp
+    });
 
     // 4. Generate 7-Day Chart Data
     const last7Days = [];
@@ -247,47 +258,84 @@ export default function Dashboard() {
       <main style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Quick Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           
-          <div className="glass-card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'var(--primary-glow)', padding: '10px', borderRadius: '10px', color: 'var(--primary)' }}>
-              <DollarSign size={20} />
+          <div className="glass-card" style={{ padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'var(--primary-glow)', padding: '8px', borderRadius: '10px', color: 'var(--primary)' }}>
+              <DollarSign size={18} />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Revenue</p>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>₹{stats.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</h3>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Gross Sales</p>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700' }}>Rs. {stats.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</h3>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'rgba(236, 72, 153, 0.1)', padding: '10px', borderRadius: '10px', color: 'var(--secondary)' }}>
-              <FileText size={20} />
+          <div className="glass-card" style={{ padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--danger)' }}>
+              <TrendingDown size={18} />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Sales Count</p>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>{stats.totalCount} Bills</h3>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Expenses</p>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700' }}>Rs. {stats.totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</h3>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '10px', color: 'var(--success)' }}>
-              <TrendingUp size={20} />
+          <div className="glass-card" style={{ 
+            padding: '12px 15px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            border: stats.netProfit >= 0 ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)'
+          }}>
+            <div style={{ 
+              background: stats.netProfit >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+              padding: '8px', 
+              borderRadius: '10px', 
+              color: stats.netProfit >= 0 ? 'var(--success)' : 'var(--danger)' 
+            }}>
+              <CreditCard size={18} />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Average ticket</p>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>₹{stats.averageValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</h3>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Net Profit</p>
+              <h3 style={{ 
+                fontSize: '1.05rem', 
+                fontWeight: '700', 
+                color: stats.netProfit >= 0 ? 'var(--success)' : 'var(--danger)' 
+              }}>
+                Rs. {stats.netProfit.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+              </h3>
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '10px', borderRadius: '10px', color: 'var(--warning)' }}>
-              <Award size={20} />
+          <div className="glass-card" style={{ padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'rgba(236, 72, 153, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--secondary)' }}>
+              <FileText size={18} />
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Peak Sale Date</p>
-              <h3 style={{ fontSize: '0.9rem', fontWeight: '700', wordBreak: 'break-word' }}>{stats.peakDate}</h3>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Sales Count</p>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700' }}>{stats.totalCount} Bills</h3>
+            </div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--success)' }}>
+              <TrendingUp size={18} />
+            </div>
+            <div>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Average Ticket</p>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700' }}>Rs. {stats.averageValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</h3>
+            </div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '12px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '8px', borderRadius: '10px', color: 'var(--warning)' }}>
+              <Award size={18} />
+            </div>
+            <div>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Peak Date</p>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: '700', wordBreak: 'break-word' }}>{stats.peakDate}</h3>
               {stats.peakDateAmount > 0 && (
-                <p style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: '600' }}>₹{stats.peakDateAmount.toFixed(2)}</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--success)', fontWeight: '600' }}>Rs. {stats.peakDateAmount.toFixed(2)}</p>
               )}
             </div>
           </div>
