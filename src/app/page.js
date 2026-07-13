@@ -16,7 +16,8 @@ import {
   Download, 
   Trash2, 
   Search, 
-  User 
+  User,
+  Share2
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -105,7 +106,12 @@ export default function Dashboard() {
 
   const handleDownloadPDF = (invoice) => {
     if (!shop) return;
-    generateInvoicePDF(invoice, shop);
+    generateInvoicePDF(invoice, shop, 'download');
+  };
+
+  const handleSharePDF = (invoice) => {
+    if (!shop) return;
+    generateInvoicePDF(invoice, shop, 'share');
   };
 
   const handleDeleteInvoice = async (id, invNum) => {
@@ -374,7 +380,7 @@ export default function Dashboard() {
                       <button 
                         onClick={() => handleDownloadPDF(inv)}
                         style={{
-                          background: 'rgba(99,102,241,0.1)',
+                          background: 'rgba(59,130,246,0.1)',
                           border: 'none',
                           color: 'var(--primary)',
                           width: '32px',
@@ -388,6 +394,24 @@ export default function Dashboard() {
                         title="Download PDF"
                       >
                         <Download size={14} />
+                      </button>
+                      <button 
+                        onClick={() => handleSharePDF(inv)}
+                        style={{
+                          background: 'rgba(6,182,212,0.1)',
+                          border: 'none',
+                          color: 'var(--secondary)',
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        title="Share Invoice"
+                      >
+                        <Share2 size={14} />
                       </button>
                       <button 
                         onClick={() => handleDeleteInvoice(inv.id, inv.invoiceNumber)}

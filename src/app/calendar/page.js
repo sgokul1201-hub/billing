@@ -16,7 +16,8 @@ import {
   Trash2, 
   User, 
   ShoppingBag,
-  TrendingUp
+  TrendingUp,
+  Share2
 } from 'lucide-react';
 
 export default function CalendarPage() {
@@ -79,7 +80,12 @@ export default function CalendarPage() {
 
   const handleDownloadPDF = (sale) => {
     if (!shop) return;
-    generateInvoicePDF(sale, shop);
+    generateInvoicePDF(sale, shop, 'download');
+  };
+
+  const handleSharePDF = (sale) => {
+    if (!shop) return;
+    generateInvoicePDF(sale, shop, 'share');
   };
 
   const handleDeleteInvoice = async (id, invNum) => {
@@ -325,7 +331,7 @@ export default function CalendarPage() {
                         <button 
                           onClick={() => handleDownloadPDF(sale)}
                           style={{
-                            background: 'rgba(99,102,241,0.1)',
+                            background: 'rgba(59,130,246,0.1)',
                             border: 'none',
                             color: 'var(--primary)',
                             width: '28px',
@@ -339,6 +345,24 @@ export default function CalendarPage() {
                           title="Download PDF"
                         >
                           <Download size={12} />
+                        </button>
+                        <button 
+                          onClick={() => handleSharePDF(sale)}
+                          style={{
+                            background: 'rgba(6,182,212,0.1)',
+                            border: 'none',
+                            color: 'var(--secondary)',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title="Share Invoice"
+                        >
+                          <Share2 size={12} />
                         </button>
                         <button 
                           onClick={() => handleDeleteInvoice(sale.id, sale.invoiceNumber)}
