@@ -37,8 +37,17 @@ jobs:
       - name: Build Next.js Static Site
         run: npm run build
 
+      - name: Debug Workspace and Run Doctor
+        run: |
+          echo "=== CLI Doctor ==="
+          npx cap doctor
+          echo "=== Root Directory ==="
+          ls -la
+          echo "=== Web Assets Directory ==="
+          ls -la out || echo "out directory not found"
+
       - name: Sync Capacitor Android
-        run: npx cap sync
+        run: npx cap sync --verbose
 
       - name: Build Debug APK via Gradle Wrapper
         run: |
