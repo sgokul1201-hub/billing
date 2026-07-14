@@ -1,4 +1,4 @@
-package com.sabari.billing;
+package com.invoxa.billing;
 
 import com.getcapacitor.BridgeActivity;
 
