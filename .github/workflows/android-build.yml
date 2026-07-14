@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-size: '20'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install Project Dependencies
@@ -42,15 +42,15 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Build Release APK via Gradle Wrapper
+      - name: Build Debug APK via Gradle Wrapper
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
 
-      - name: Upload Release APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: sabari-billing-app-release
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          name: sabari-billing-app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
