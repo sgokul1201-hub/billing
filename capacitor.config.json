@@ -1,6 +1,6 @@
 {
-  "appId": "com.sabari.billing",
-  "appName": "Sabari Billing",
+  "appId": "com.invoxa.billing",
+  "appName": "Invoxa",
   "webDir": "out",
   "bundledWebRuntime": false,
   "server": {

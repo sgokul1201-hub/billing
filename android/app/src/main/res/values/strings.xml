@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sabari Billing</string>
+    <string name="title_activity_main">Sabari Billing</string>
+    <string name="package_name">com.sabari.billing</string>
+    <string name="custom_url_scheme">com.sabari.billing</string>
+</resources>
